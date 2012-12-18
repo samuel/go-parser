@@ -32,6 +32,15 @@ func TestAll(t *testing.T) {
 	testSimple(t, "All", Spec{}, p, "1test222", "test")
 }
 
+func TestAny(t *testing.T) {
+	p := Any(
+		String("1"),
+		String("test"),
+	)
+	testSimple(t, "Any", Spec{}, p, "1", "1")
+	testSimple(t, "Any", Spec{}, p, "test1", "test")
+}
+
 func TestMany(t *testing.T) {
 	p := Many(
 		String("1"),
