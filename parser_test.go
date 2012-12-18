@@ -2,8 +2,49 @@ package parser
 
 import (
 	"io"
+	"reflect"
 	"testing"
 )
+
+func testSimple(t *testing.T, name string, spec Spec, p Parser, in string, exp interface{}) {
+	st := &State{
+		Input: NewStringInput(in),
+		Spec:  spec,
+	}
+	out, ok, err := p(st)
+	if err != nil {
+		t.Fatalf("%s returned error %s (in '%s' exp '%+v')", name, err.Error(), in, exp)
+	}
+	if !ok {
+		t.Fatalf("%s returned !ok", name)
+	}
+	if !reflect.DeepEqual(out, exp) {
+		t.Fatalf("%s returned '%+v' instead of '%+v'", name, out, exp)
+	}
+}
+
+func TestAll(t *testing.T) {
+	p := All(
+		String("1"),
+		String("test"),
+	)
+	testSimple(t, "All", Spec{}, p, "1test", "test")
+	testSimple(t, "All", Spec{}, p, "1test222", "test")
+}
+
+func TestMany(t *testing.T) {
+	p := Many(
+		String("1"),
+	)
+	testSimple(t, "Many", Spec{}, p, "11", []interface{}{"1", "1"})
+	testSimple(t, "Many", Spec{}, p, "1122", []interface{}{"1", "1"})
+}
+
+func TestString(t *testing.T) {
+	p := String("test")
+	testSimple(t, "String", Spec{}, p, "test", "test")
+	testSimple(t, "String", Spec{}, p, "testaa", "test")
+}
 
 func TestComments(t *testing.T) {
 	spec := Spec{

@@ -241,11 +241,11 @@ func Many(match Parser) Parser {
 		matches := []interface{}{}
 		for {
 			out, parsed, err := match(st)
-			if err != nil {
+			if err == io.EOF {
+				break
+			} else if err != nil {
 				return nil, false, err
-			}
-
-			if !parsed {
+			} else if !parsed {
 				break
 			}
 
